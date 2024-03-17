@@ -69,8 +69,9 @@ class CustomCallback2 extends tf.Callback {
         weights = weights.flat()
         d3.select("#neuralNet2").selectAll('.link')
         .style("stroke-width", function (d) {
+            console.log(d.value)
             d.value = weights[d.overall]
-            return d.value
+            return 2*Math.abs(d.value)
         })
         .style("stroke", function (d) {
             if (d.value>=0){
@@ -189,7 +190,7 @@ function draw_bar(){
     .style('display', 'block')
     const margin = {top: 10, right: 30, bottom: 90, left: 200};
     const params = past_runs.map(d => d.loss)
-    const param_scale = d3.scaleLinear([Math.log(26), Math.log(53248)], ["yellow", "purple"]) 
+    const param_scale = d3.scaleLinear([26, 720], ["yellow", "purple"]) 
     const svg = d3.select("#bar_view")
     svg.selectAll("*").remove()
     let width_d = 1000 - margin.left - margin.right;
@@ -254,7 +255,7 @@ function draw_bar(){
         .attr("y", d => y(d.loss))
         .attr("width", x.bandwidth())
         .attr("height", d => height_d - y(d.loss))
-        .attr("fill", d => param_scale(Math.log(d.parameters)));
+        .attr("fill", d => param_scale(d.parameters));
 
 }
 
