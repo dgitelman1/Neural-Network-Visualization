@@ -15,27 +15,27 @@ import {drawGraph} from './script.js';
 window.addEventListener('DOMContentLoaded', (event) => {
     d3.selectAll('#nodesDropdown5').style("display", "none")
     d3.selectAll('#nodesDropdown5l').style("display", "none")
-    d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
+    d3.select('#weightCount').html(`The current number of different weights is ${get_weight_count()}`)
     // Event listener for changes in the number of nodes
     document.getElementById("nodesDropdown3").addEventListener("change", function () {
         nodesValue2[0] = parseInt(this.value);
-        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
+        d3.select('#weightCount').html(`The current number of different weights is ${get_weight_count()}`)
         draw2();
     })
     document.getElementById("nodesDropdown4").addEventListener("change", function () {
         nodesValue2[1] = parseInt(this.value);
-        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
+        d3.select('#weightCount').html(`The current number of different weights is ${get_weight_count()}`)
         draw2();
     });
 
     document.getElementById("nodesDropdown5").addEventListener("change", function () {
         nodesValue2[2] = parseInt(this.value);
-        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
+        d3.select('#weightCount').html(`The current number of different weights is ${get_weight_count()}`)
         draw2();
     });
     document.getElementById("layersDropdown").addEventListener("change", function () {
         hiddenLayersValue2 = parseInt(this.value);
-        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
+        d3.select('#weightCount').html(`The current number of different weights is ${get_weight_count()}`)
         if (hiddenLayersValue2==1){
             d3.selectAll('#nodesDropdown4').style("display", "none")
             d3.selectAll('#nodesDropdown5').style("display", "none")
@@ -188,7 +188,7 @@ function draw_bar(){
     d3.select('#count_tracker_heading')
     .style('display', 'block')
     const margin = {top: 10, right: 30, bottom: 90, left: 200};
-    const params = past_runs.map(d => d.parameters)
+    const params = past_runs.map(d => d.loss)
     const param_scale = d3.scaleLinear([Math.log(26), Math.log(53248)], ["yellow", "purple"]) 
     const svg = d3.select("#bar_view")
     svg.selectAll("*").remove()
@@ -211,7 +211,7 @@ function draw_bar(){
         .call(d3.axisBottom(x))
 
     const y = d3.scaleLinear()
-        .domain([0, .1])
+        .domain([0, Math.max(...params)])
         .range([ height_d, 0]);
         svg.append("g")
         .attr("class", "myYaxis")
