@@ -12,22 +12,27 @@ import {drawGraph} from './script.js';
 window.addEventListener('DOMContentLoaded', (event) => {
     d3.selectAll('#nodesDropdown5').style("display", "none")
     d3.selectAll('#nodesDropdown5l').style("display", "none")
+    d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
     // Event listener for changes in the number of nodes
     document.getElementById("nodesDropdown3").addEventListener("change", function () {
         nodesValue2[0] = parseInt(this.value);
+        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
         draw2();
     })
     document.getElementById("nodesDropdown4").addEventListener("change", function () {
         nodesValue2[1] = parseInt(this.value);
+        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
         draw2();
     });
 
     document.getElementById("nodesDropdown5").addEventListener("change", function () {
         nodesValue2[2] = parseInt(this.value);
+        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
         draw2();
     });
     document.getElementById("layersDropdown").addEventListener("change", function () {
         hiddenLayersValue2 = parseInt(this.value);
+        d3.select('#weightCount').html(`The current number of differents weights is ${get_weight_count()}`)
         if (hiddenLayersValue2==1){
             d3.selectAll('#nodesDropdown4').style("display", "none")
             d3.selectAll('#nodesDropdown5').style("display", "none")
@@ -160,6 +165,14 @@ function draw2() {
         svg.selectAll(".link").style("stroke-opacity", .4)
     }
     model2 = createComplexModel();
+}
+
+function get_weight_count(){
+    let base = 13;
+    for (let i=0; i<hiddenLayersValue2; i++){
+        base = base*nodesValue2[i]
+    }
+    return base;
 }
 
 
