@@ -2,7 +2,7 @@ let dataset = [];
 let labels = [];
 let basicInputs, basicLabels, basicInputTensor, basiclabelTensor, basicNMInputs;
 let inputs, inputTensor, labelTensor, nmInputs;
-let inputs2, values2, inputTensor2, labelTensor2, labelMin2, labelMax2, nmInputs2, nmLabels2;
+let inputs2, inputTensor2, labelTensor2, labelMin2, labelMax2, nmInputs2, nmLabels2;
 let model;
 let price_scale;
 
@@ -23,8 +23,8 @@ let samples;
 
 export {drawGraph, drawGraph2, model, samples, x_h, y_h, margin, nmInputs, model2};
 
-import { CustomCallback, trainModel, createModel, nodesValue, hiddenLayersValue} from './model2.js';
-import {buildNodeGraph3, draw3, linearModel, linearModel2, networkGraph3, trainLinearModel, trainLinearModel2} from './linearregression.js';
+import {trainModel, createModel, nodesValue, hiddenLayersValue} from './model2.js';
+import {draw3, linearModel, linearModel2, networkGraph3, trainLinearModel, trainLinearModel2} from './linearregression.js';
 import {generatePredictionMatrix, predictZones, updateHeatmap} from './heatmap.js';
 import {normalRandom, classifyTwoGaussData, classifyCircleData} from './dataset.js';
 import {CustomCallback2, trainModel2, createComplexModel, draw2, buildNodeGraph2, hiddenLayersValue2, nodesValue2, networkGraph2, model2} from './complexmodel.js';
@@ -71,8 +71,6 @@ async function loadData() {
         let labels2 = data.map(d => parseFloat(d.medv));
         inputs2 = data.map(d => [parseFloat(d.crim), parseFloat(d.rm), parseFloat(d.zn), parseFloat(d.indus), parseFloat(d.chas), parseFloat(d.nox), 
             parseFloat(d.age), parseFloat(d.dis), parseFloat(d.rad), parseFloat(d.tax), parseFloat(d.ptratio), parseFloat(d.b), parseFloat(d.lstat)]);
-        console.log(inputs2)
-        values2 = data.map(extractData);
         inputTensor2 = tf.tensor2d(inputs2, [inputs2.length, 13]);
         labelTensor2 = tf.tensor2d(labels2, [labels2.length, 1]);
         labelMin2 = labelTensor2.min();
@@ -149,12 +147,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
     loadData();
     samples = generatePredictionMatrix();
     document.getElementById('tbutton').addEventListener('click', function () {
-        console.log(nmInputs.arraySync())
         draw()
         trainModel(model, nmInputs, labelTensor);
     });
 
     document.getElementById('tbutton2').addEventListener('click', function () {
+        draw2()
         trainModel2(model2, nmInputs2, nmLabels2);
     });
 
@@ -180,42 +178,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
         draw();
     });
 
-    const epochSlider = document.getElementById('epochSlider');
-    epochSlider.value = 1;
-
-    const epochValueSpan = document.getElementById('epochValue');
-    epochValueSpan.textContent = "Epoch 1";
-
-    // Update the content of the span element with the initial value of the slider
-    epochValueSpan.textContent = epochSlider.value;
-
-    // Add input event listener to the epochSlider
-    epochSlider.addEventListener('input', function() {
-        // Update the content of the span element with the current value of the slider
-        epochValueSpan.textContent = "Epoch: " + this.value;
-    });
 });
 
 function normalize_data(input, feat) {
     let inputMin = input.min(feat);
     let inputMax = input.max(feat);
     return input.sub(inputMin).div(inputMax.sub(inputMin));
-}
-
-function unnormalize_data(normed, input, feat) {
-    inputMin = input.min(feat);
-    console.log(inputMin.reshape([2, 1]).print());
-    inputMax = input.max(feat);
-    return normed.mul(inputMax.sub(inputMin).reshape([2, 1])).add(inputMin.reshape([2, 1]));
-}
-
-
-function extractData(d) {
-    return { x: parseFloat(d.crim), y: parseFloat(d.medv) };
-}
-
-function mapXY(value, index) {
-    return { x: value, y: unY[index] };
 }
 
 
@@ -304,35 +272,6 @@ function drawGraph(networkGraph, svg) {
     let link = svg.selectAll(".link")
         .data(links, d => d.source + "-" + d.target) // Use a unique identifier for each link
         .enter().append("line")
-        .on('mouseover', (event, d) => {
-            const tooltip = d3.select('#tooltip');
-            tooltip.transition()
-            .duration(200)
-            .style('position', 'absolute')
-            .style('background-color', 'white')
-            .style('padding', '6px')
-            .style('border', '1px solid #ccc')
-            .style('border-radius', '5px')
-            .style('font-size', '12px');
-    
-            // Set tooltip content
-            tooltip.html(`${d.value}`)
-                .style('left', (event.pageX + 10) + 'px')
-                .style('top', (event.pageY - 20) + 'px');
-        })
-        .on('mousemove', function (event) {
-            d3.select('#tooltip')
-                .style('left', (event.pageX + 10) + 'px')
-                .style('top', (event.pageY - 20) + 'px');
-        })
-        .on('mouseout', () => {
-            d3.select('#tooltip')
-            .transition()
-            .duration(250)
-            .style('opacity', 0);
-
-            console.log("moved")
-        })
         .attr("class", "link")
         .attr("x1", d => nodes[d.source].x)
         .attr("y1", d => nodes[d.source].y)
@@ -355,10 +294,6 @@ function drawGraph(networkGraph, svg) {
         .attr("r", nodeSize)
         .style("fill", function (d) { return color(d.layer); });
 
-    node.append("text")
-        .attr("dx", "-.35em")
-        .attr("dy", ".35em")
-        .attr("font-size", ".6em");
 }
 
 function drawGraph2(networkGraph, svg) {

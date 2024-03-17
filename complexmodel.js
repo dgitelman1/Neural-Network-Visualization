@@ -5,6 +5,9 @@ let nodesValue2 = [16, 8, 4]; // Default number of nodes
 let isInitialSetup2 = true;
 let networkGraph2;
 let model2;
+let past_runs = []
+let run_num = 1
+
 
 import {drawGraph} from './script.js';
 
@@ -61,11 +64,9 @@ class CustomCallback2 extends tf.Callback {
         let weights;
         weights = model2.layers[0].getWeights()[0].arraySync();
         for (let i = 1; i < model2.layers.length; i++) {
-            console.log(model2.layers[i])
             weights = weights.concat(model2.layers[i].getWeights()[0].arraySync())
         }
         weights = weights.flat()
-        console.log(d3.select("#neuralNet2").selectAll('.link'))
         d3.select("#neuralNet2").selectAll('.link')
         .style("stroke-width", function (d) {
             d.value = weights[d.overall]
@@ -79,16 +80,22 @@ class CustomCallback2 extends tf.Callback {
             }
         })
     }
+
 }
 
 async function trainModel2(model, inputs, labels) {
     let surface = document.getElementById('plot2');
+    const get_parameters = get_weight_count();
     const batchSize = 8;
-    const epochs = 30;
+    const epochs = 5;
     const callbacks = tfvis.show.fitCallbacks(surface, ['loss'], { callbacks: ['onEpochEnd'] });
-    return await model.fit(inputs, labels,
+    const history = await model.fit(inputs, labels,
         { batchSize, epochs, shuffle: true, callbacks: [callbacks, new CustomCallback2()] }
     );
+    let new_run = {'loss': history['history']['loss'][epochs-1], 'runnum': run_num, 'parameters': get_parameters}
+    past_runs.push(new_run);
+    run_num = run_num+1;
+    draw_bar();
 }
 
 function createComplexModel() {
@@ -173,6 +180,82 @@ function get_weight_count(){
         base = base*nodesValue2[i]
     }
     return base;
+}
+
+function draw_bar(){
+    d3.select('#count_tracker')
+    .style('display', 'flex')
+    d3.select('#count_tracker_heading')
+    .style('display', 'block')
+    const margin = {top: 10, right: 30, bottom: 90, left: 200};
+    const params = past_runs.map(d => d.parameters)
+    const param_scale = d3.scaleLinear([Math.log(26), Math.log(53248)], ["yellow", "purple"]) 
+    const svg = d3.select("#bar_view")
+    svg.selectAll("*").remove()
+    let width_d = 1000 - margin.left - margin.right;
+    let height_d = 600 - margin.top - margin.bottom;
+    
+    svg
+    .attr("width", width_d + margin.left + margin.right)
+    .attr("height", height_d + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+    const x = d3.scaleBand()
+        .range([ 0, width_d ])
+        .domain(past_runs.map(function(d) { return d.runnum; }))
+        .padding(0.15);
+        svg.append("g")
+        .attr("transform", "translate(0," + height_d + ")")
+        .call(d3.axisBottom(x))
+
+    const y = d3.scaleLinear()
+        .domain([0, .1])
+        .range([ height_d, 0]);
+        svg.append("g")
+        .attr("class", "myYaxis")
+        .call(d3.axisLeft(y));
+
+    let u = svg.selectAll("rect")
+        .data(past_runs)
+        .join("rect")
+        .on('mouseover', (event, d) => {
+            const tooltip = d3.select('#tooltip');
+            tooltip.transition()
+            .duration(200)
+            .style('position', 'absolute')
+            .style('background-color', 'white')
+            .style('padding', '6px')
+            .style('border', '1px solid #ccc')
+            .style('border-radius', '5px')
+            .style('font-size', '15px')
+            .style("opacity", .9)
+
+            // Set tooltip content
+            tooltip.html(`Run number ${d.runnum} <br> Parameter Count: ${d.parameters} <br> Mean squared error: ${d.loss.toFixed(3)}`)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 20) + 'px');
+        })
+        .on('mousemove', function (event) {
+            d3.select('#tooltip')
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 20) + 'px');
+        })
+        .on('mouseout', () => {
+            d3.select('#tooltip')
+            .transition()
+            .duration(250)
+            .style('opacity', 0);
+        })
+        .transition()
+        .duration(1000)
+        .attr("x", d => x(d.runnum))
+        .attr("y", d => y(d.loss))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height_d - y(d.loss))
+        .attr("fill", d => param_scale(Math.log(d.parameters)));
+
 }
 
 
