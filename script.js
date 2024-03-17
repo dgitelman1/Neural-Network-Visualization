@@ -157,9 +157,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
     });
 
     document.getElementById('lbutton1').addEventListener('click', function () {
+        draw3();
         trainLinearModel(linearModel, basicNMInputs, basiclabelTensor);
     });
     document.getElementById('lbutton2').addEventListener('click', function () {
+        draw3();
         trainLinearModel2(linearModel2, nmInputs, labelTensor);
     });
     // Event listener for changes in the number of hidden layers
