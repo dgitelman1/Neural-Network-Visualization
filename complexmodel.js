@@ -175,9 +175,9 @@ function draw2() {
 }
 
 function get_weight_count(){
-    let base = 13;
-    for (let i=0; i<hiddenLayersValue2; i++){
-        base = base*nodesValue2[i]
+    let base = 13*nodesValue2[0];
+    for (let i=1; i<hiddenLayersValue2; i++){
+        base = base + (nodesValue2[i]*nodesValue2[i-1])
     }
     return base;
 }
