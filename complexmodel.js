@@ -87,7 +87,7 @@ async function trainModel2(model, inputs, labels) {
     let surface = document.getElementById('plot2');
     const get_parameters = get_weight_count();
     const batchSize = 8;
-    const epochs = 5;
+    const epochs = 25;
     const callbacks = tfvis.show.fitCallbacks(surface, ['loss'], { callbacks: ['onEpochEnd'] });
     const history = await model.fit(inputs, labels,
         { batchSize, epochs, shuffle: true, callbacks: [callbacks, new CustomCallback2()] }
