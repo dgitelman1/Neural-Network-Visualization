@@ -280,7 +280,7 @@ function drawGraph(networkGraph, svg) {
         .attr("x2", d => nodes[d.target].x)
         .attr("y2", d => nodes[d.target].y)
         .style("stroke", "#999")
-        .style("stroke-opacity", 1)
+        .style("stroke-opacity", .7)
         .style("stroke-width", d => 4*d.value);
 
     // Draw nodes
